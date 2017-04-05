@@ -2,90 +2,161 @@
 #include "ofMain.h"
 #define GLSL(version, shader)  "#version " #version "\n" #shader
 
-
-// ffmpeg must be installed
-// $sudo apt install ffmpeg
+//
+// screenCaptureThread.h
+//
+// *ffmpeg must be installed
+// - a. install guide for all platforms
+// https://trac.ffmpeg.org/wiki/CompilationGuide
+//
+// created on Apr, 2017 @FakeLove http://www.fakelove.tv/
+// author - av http://avseoul.net http://kimsehyun.kr
+//
 class screenCaptureThread : public ofThread{
 public:
     screenCaptureThread(){}
-    void setup(int _w, int _h, std::string _path){
-        w = _w, h = _h;
-        frame = 0;
-        path = _path;
-        initFbo();
+    ~screenCaptureThread(){
+        waitForThread(true);
     }
-    void start(){startThread();}
+    void setup(int _w, int _h, std::string _path = ""){
+        w = _w, h = _h, frame = 0, bffrCount = 0, thrdBffrCount = 0, saveCount = 0;
+        initBuffer();
+        
+        pixels.resize(numBffr);
+        for(int i = 0; i < numBffr; i++)
+            pixels[i] = ofPixels();
+        
+        path = _path == "" ? ofDirectory::ofDirectory(_path).getAbsolutePath() + "/" : _path;
+        std::cout << "SCThread::target path - " << path << endl;
+        
+        threadRunning = false;
+        firstFrame = true;
+        stopTriggered = false;
+    }
+    
+    void start(){
+        if(!threadRunning){
+            reset();
+            startThread();
+            threadRunning = true;
+        } else
+            std::cout << "SCThread::thread running" << endl;
+    }
+    
     void stop(){
-        stopThread();
-        runFFMpeg();
+        if(threadRunning)
+            stopTriggered = true;
+        else
+            std::cout << "SCThread::thread not running" << endl;
     }
-    void drawBegin(){
-        img.clear();
+    
+    void beginDraw(){
         fbo.begin();
         ofClear(0);
     }
-    void drawEnd(){
+    
+    void endDraw(){
         fbo.end();
         fbo.draw(0,0);
-        img.grabScreen(0,0,w,h);
+        
+        bool _save = saveCount%2 == 0 ? true : false;
+        if(_save && threadRunning && !stopTriggered){
+            if(!firstFrame){
+                bffr_ping.unmap();
+            }
+            firstFrame = false;
+            
+            fbo.getTexture().copyTo(bffr_ping);
+            
+            bffr_pong.bind(GL_PIXEL_UNPACK_BUFFER);
+            unsigned char * p = bffr_pong.map<unsigned char>(GL_READ_ONLY);
+            pixels[bffrCount].setFromPixels(p,w,h,OF_PIXELS_RGB);
+            std::swap(bffr_ping, bffr_pong);
+            
+            bffrCount++;
+            
+            if(bffrCount >= numBffr) {
+                std::cout<<"SCThread::buffer reaches limit - stopping rendering" << endl << "change numBffr to increase limit";
+                stop();
+            }
+        }
+        saveCount++;
+        
+        if(stopTriggered && bffrCount-1 <= thrdBffrCount){
+            threadRunning = false;
+            runFFMpeg();
+            reset();
+            stopThread();
+        }
     }
+    
     void reset(){
+        saveCount = 0;
         frame = 0;
+        thrdBffrCount = 0;
+        bffrCount = 0;
+        stopTriggered = false;
     }
-
+    
+    int numBffr = 9999;
+    
 private:
-    int w, h, frame, resCount = 0;
+    int w, h, frame, bffrCount, thrdBffrCount, saveCount;
     std::string path;
     ofFbo fbo;
-    ofBuffer bffr;
-    ofImage img;
-    void initFbo(){
-        ofFbo::Settings settings;
-        settings.width = w;
-        settings.height = h;
-        settings.internalformat = GL_RGB32F;
-        settings.minFilter = GL_NEAREST;
-        settings.maxFilter = GL_NEAREST;
-        fbo.allocate(settings);
-        fbo.begin();ofClear(0);fbo.end();
+    ofBufferObject bffr_ping, bffr_pong;
+    vector<ofPixels> pixels;
+    bool threadRunning, firstFrame, stopTriggered;
+    
+    void initBuffer(){
+        fbo.allocate(w,h,GL_RGB);
+        bffr_ping.allocate(w*h*3,GL_DYNAMIC_READ);
+        bffr_pong.allocate(w*h*3,GL_DYNAMIC_READ);
     }
-    std::string getPath(std::string _r){
+    
+    std::string getPath(std::string _r, int _i){
         std::ostringstream _n;
-        _n << setw(4) << setfill('0') << frame;
-        std::string _p =  _r + "render_" + _n.str() + ".jpg";
-        frame++;
+        _n << setw(4) << setfill('0') << _i;
+        std::string _p =  _r + "render_" + _n.str() + ".png";
         return _p;
     }
+    
     void runFFMpeg(){
         std::string _tstamp = ofGetTimestampString();
-        std::string _cmd = "cd " + path + " && ffmpeg -framerate 25 -i render_%04d.jpg video"+_tstamp+".mov";
-//        std::cout << _cmd << endl;
-        int _res = std::system(_cmd.c_str());
-        std::cout << "response : " << _res << endl;
+        // if is linux
+//        std::string _cmd = "cd " + path + " && ffmpeg -start_number 1 -framerate 30 -i render_%04d.png -c:v libx264 -vf fps=30 -pix_fmt yuv420p video"+_tstamp+".mp4";
+        // else if is mac
+        // check this thread out
+        // https://forum.openframeworks.cc/t/launching-and-configuring-terminal-window-from-of-application/18236/10
         std:string _rmfiles = "cd " + path + " && rm -rf ";
-        for(int i = 0; i < frame; i++){
+        for(int i = 0; i < frame+1; i++){
             std::ostringstream _n;
             _n << setw(4) << setfill('0') << i;
-            std::string _p =  "render_" + _n.str() + ".jpg ";
+            std::string _p =  "render_" + _n.str() + ".png ";
             _rmfiles += _p;
         }
-        std::system(_rmfiles.c_str());
-        std::cout << "image sequences deleted" << endl;
-        reset();
+        std::string _cmd = "osascript -e 'tell application \"Terminal\" to do script \"cd " + path + " && ffmpeg -start_number 1 -framerate 30 -i render_%04d.png -c:v libx264 -vf fps=30 -pix_fmt yuv420p -preset ultrafast video"+_tstamp+".mp4 && " + _rmfiles + " && exit\"'";
+        std::system(_cmd.c_str());
+        std::cout << "SCThread::rendering completed" << endl;
     }
+    
     void threadedFunction(){
-        // start
-        while(isThreadRunning()){
-            // do something
-            std::string _p = getPath(path);
-            if(img.isAllocated())
-                img.save(bffr, OF_IMAGE_FORMAT_JPEG, OF_IMAGE_QUALITY_HIGH);
-            bool _log = ofBufferToFile(_p, bffr, true);
-            ofSleepMillis(1);
-
-            if(_log)
-                std::cout << "img saved at " << _p << endl;
+        std::cout << "SCThread::thread initiated" << endl;
+        ofSleepMillis(1000);
+        std::cout << "SCThread::thread started" << endl;
+        
+        while(threadRunning){
+            std::cout<< "SCThread::saved buffers - "  << thrdBffrCount << " ea / stored buffers - " << bffrCount-1 << " ea" << endl;
+            if(stopTriggered)
+                std::cout<< "SCThread::rendering process - " << std::floor((float)thrdBffrCount/(float)(bffrCount-1.f)*10000.f)*.01f << "%" << endl << endl << "//////////////////////////" << endl << "// DO NOT CLOSE THE APP //" << endl << "//////////////////////////" << endl << endl;
+            
+            std::string _p = getPath(path, frame);
+            ofSaveImage(pixels[thrdBffrCount],_p);
+            frame++;
+            thrdBffrCount++;
         }
-        // done
+        
+        std::cout << "SCThread::thread ended" << endl;
     }
+    
 };
