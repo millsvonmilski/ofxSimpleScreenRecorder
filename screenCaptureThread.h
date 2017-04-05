@@ -90,31 +90,6 @@ public:
         }
     }
     
-    void showWarning(){
-        std::ostringstream warning;
-        warning << "//////////////////////////" << endl << "// DO NOT CLOSE THE APP //" << endl << "//////////////////////////" << endl << endl << "PROCESS - " << std::floor((float)thrdBffrCount/(float)(bffrCount-1.f)*10000.f)*.01f << "%";
-        ofPushStyle();
-        ofSetColor(255,255,0);
-        ofBeginShape();
-        ofVertex(0, h/2.f-50.f, 0);
-        ofVertex(0, h/2.f+50.f, 0);
-        ofVertex(w, h/2.f+50.f, 0);
-        ofVertex(w, h/2.f-50.f, 0);
-        ofEndShape();
-        ofSetColor(255,10,100);
-        ofDrawBitmapString(warning.str(), w/2.f-90.f, h/2.f-50.f+27.f);
-        ofPopStyle();
-        warning.str("");
-    }
-    
-    void reset(){
-        saveCount = 0;
-        frame = 0;
-        thrdBffrCount = 0;
-        bffrCount = 0;
-        stopTriggered = false;
-    }
-    
     int numBffr = 9999;
     
 private:
@@ -129,6 +104,28 @@ private:
         fbo.allocate(w,h,GL_RGB);
         bffr_ping.allocate(w*h*3,GL_DYNAMIC_READ);
         bffr_pong.allocate(w*h*3,GL_DYNAMIC_READ);
+    }
+    
+    void reset(){
+        saveCount = 0;
+        frame = 0;
+        thrdBffrCount = 0;
+        bffrCount = 0;
+        stopTriggered = false;
+    }
+    
+    void showWarning(){
+        std::ostringstream warning;
+        warning << "//////////////////////////" << endl << "// DO NOT CLOSE THE APP //" << endl << "//////////////////////////" << endl << endl << "PROCESS - " << std::floor((float)thrdBffrCount/(float)(bffrCount-1.f)*10000.f)*.01f << "%";
+        ofPushStyle();
+        ofSetColor(255,255,0);
+        ofBeginShape();
+        ofVertex(0, h/2.f-50.f, 0), ofVertex(0, h/2.f+50.f, 0), ofVertex(w, h/2.f+50.f, 0), ofVertex(w, h/2.f-50.f, 0);
+        ofEndShape();
+        ofSetColor(255,10,100);
+        ofDrawBitmapString(warning.str(), w/2.f-90.f, h/2.f-50.f+27.f);
+        ofPopStyle();
+        warning.str("");
     }
     
     std::string getPath(std::string _r, int _i){
