@@ -18,7 +18,7 @@ public:
         waitForThread(true);
     }
     void setup(int _w, int _h, std::string _path = ""){
-        w = _w, h = _h, frame = 0, bffrCount = 0, thrdBffrCount = 0, saveCount = 0;
+        w = _w, h = _h, bffrCount = 0, thrdBffrCount = 0, saveCount = 0;
         initBuffer();
         
         pixels.resize(numBffr);
@@ -93,7 +93,7 @@ public:
     int numBffr = 9999;
     
 private:
-    int w, h, frame, bffrCount, thrdBffrCount, saveCount;
+    int w, h, bffrCount, thrdBffrCount, saveCount;
     std::string path;
     ofFbo fbo;
     ofBufferObject bffr_ping, bffr_pong;
@@ -108,7 +108,6 @@ private:
     
     void reset(){
         saveCount = 0;
-        frame = 0;
         thrdBffrCount = 0;
         bffrCount = 0;
         stopTriggered = false;
@@ -138,12 +137,12 @@ private:
     void runFFMpeg(){
         std::string _tstamp = ofGetTimestampString();
         // if is linux
-//        std::string _cmd = "cd " + path + " && ffmpeg -start_number 1 -framerate 30 -i render_%04d.png -c:v libx264 -vf fps=30 -pix_fmt yuv420p video"+_tstamp+".mp4";
+        //        std::string _cmd = "cd " + path + " && ffmpeg -start_number 1 -framerate 30 -i render_%04d.png -c:v libx264 -vf fps=30 -pix_fmt yuv420p video"+_tstamp+".mp4";
         // else if is mac
         // check this thread out
         // https://forum.openframeworks.cc/t/launching-and-configuring-terminal-window-from-of-application/18236/10
-        std:string _rmfiles = "cd " + path + " && rm -rf ";
-        for(int i = 0; i < frame+1; i++){
+    std:string _rmfiles = "cd " + path + " && rm -rf ";
+        for(int i = 0; i < thrdBffrCount+1; i++){
             std::ostringstream _n;
             _n << setw(4) << setfill('0') << i;
             std::string _p =  "render_" + _n.str() + ".png ";
@@ -164,9 +163,9 @@ private:
             if(stopTriggered)
                 std::cout<< "SCThread::rendering process - " << std::floor((float)thrdBffrCount/(float)(bffrCount-1.f)*10000.f)*.01f << "%" << endl << endl << "//////////////////////////" << endl << "// DO NOT CLOSE THE APP //" << endl << "//////////////////////////" << endl << endl;
             
-            std::string _p = getPath(path, frame);
+            std::string _p = getPath(path, thrdBffrCount);
             ofSaveImage(pixels[thrdBffrCount],_p);
-            frame++;
+            
             thrdBffrCount++;
         }
         
