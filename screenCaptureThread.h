@@ -1,6 +1,5 @@
 #pragma once
 #include "ofMain.h"
-#define GLSL(version, shader)  "#version " #version "\n" #shader
 
 //
 // screenCaptureThread.h
@@ -56,6 +55,7 @@ public:
     }
     
     void endDraw(){
+        if(stopTriggered) showWarning();
         fbo.end();
         fbo.draw(0,0);
         
@@ -88,6 +88,23 @@ public:
             reset();
             stopThread();
         }
+    }
+    
+    void showWarning(){
+        std::ostringstream warning;
+        warning << "//////////////////////////" << endl << "// DO NOT CLOSE THE APP //" << endl << "//////////////////////////" << endl << endl << "PROCESS - " << std::floor((float)thrdBffrCount/(float)(bffrCount-1.f)*10000.f)*.01f << "%";
+        ofPushStyle();
+        ofSetColor(255,255,0);
+        ofBeginShape();
+        ofVertex(0, h/2.f-50.f, 0);
+        ofVertex(0, h/2.f+50.f, 0);
+        ofVertex(w, h/2.f+50.f, 0);
+        ofVertex(w, h/2.f-50.f, 0);
+        ofEndShape();
+        ofSetColor(255,10,100);
+        ofDrawBitmapString(warning.str(), w/2.f-90.f, h/2.f-50.f+27.f);
+        ofPopStyle();
+        warning.str("");
     }
     
     void reset(){
