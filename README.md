@@ -5,7 +5,7 @@ ofxSimpleScreenRecorder would be useful when you document your sketch, Documenta
 ## Requirement 
 ofxSimpleScreenRecorder depends on FFmpeg library to convert image sequence to video so FFmpeg should be installed. Follow the instruction on here https://trac.ffmpeg.org/wiki/CompilationGuide
 
-## How it works
+## Usage
 1. Set the capture size and path with setup(width, height, path). You can specify the path where video will be saved, just make sure put "/" at the last (ex. "local/somewhere/" not "local/somewhere") or simply leave it as a blank, it will use the bin folder in your oF project
 
 2. Wrap your sketch with begin(), end() in your draw loop
@@ -31,7 +31,7 @@ terminal   : convert .png sequence to h.264 .mp4 with FFmpeg command and delete 
 * integrate FFmpeg library into code 
   - convert buffer directly to video without the process saving images to local storage and also without openning terminal
 
-## usage example
+## Usage Example
 ```c++
 ofxSimpleScreenRecorder mRenderer; 
 
