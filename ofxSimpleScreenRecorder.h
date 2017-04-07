@@ -4,7 +4,9 @@
 /*
  * ofxSimpleScreenRecorder.h
  *
- * a simple oF class which record screen to h.264 mpeg video without significant frame drops ofxSimpleScreenRecorder would be useful when you document your sketch, Documentation is a frustrating process especially if the recorder causes damm frame drops. Those frame drops usually comes from saving process, recorder waits until last frame saved in order not to miss next frame of animation. ofxSimpleScreenRecorder saves frames to buffer and save imgages in buffer apart from main app's update so you won't feel any frame drops while you recording your sketch, what you see is what you will have.
+ * a simple oF class which record screen to h.264 mpeg video without significant frame drops.
+ *
+ * ofxSimpleScreenRecorder would be useful when you document your sketch, Documentation is a frustrating process especially if the recorder causes damm frame drops. Those frame drops usually comes from saving process, recorder waits until last frame saved in order not to miss next frame of animation. ofxSimpleScreenRecorder saves frames to buffer and save imgages in buffer apart from main app's update so you won't feel any frame drops while you recording your sketch, what you see is what you will have.
  *
  *
  *
@@ -43,17 +45,20 @@
  *
  * *. mainthread : store pixels of drawing to buffer array every bi-frame
  * *. ofthread   : save stored pixels png to given path (bin is default) on local drive
+ * *. terminal : convert .png sequence to h.264 .mp4 with FFmpeg command and delete image sequence
  *
  *
  *
  * - TODOs
- * a. to convert buffer directly to video without process saving images to local storage and also without process openning terminal
+ * a. integrate FFmpeg library into code to convert buffer directly to video without process saving images to local storage and also without process openning terminal
+ * b. Support different OS (Currently only supports OSX / tested on OSX El Capitan & oF_v0.9.7)
  *
  *
  *
  * created on Apr, 2017 at fakelove http://www.fakelove.tv/
  * by av http://avseoul.net http://kimsehyun.kr
  *
+ * github https://github.com/avseoul/ofxSimpleScreenRecorder
  *
  */
 
