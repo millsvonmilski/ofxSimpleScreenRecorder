@@ -23,9 +23,9 @@ ofxSimpleScreenRecorder depends on FFmpeg library to convert image sequence to v
 8. Please enjoy the last step of the process, click the red circle at left top on the terminal
    
    
-* mainthread : store pixels of drawing to buffer array every bi-frame
-* ofthread   : save stored pixels .png to given path on local drive (bin is default)
-* terminal   : convert .png sequence to h.264 .mp4 with FFmpeg command and delete image sequence
+* Mainthread : store pixels of drawing to buffer array every bi-frame
+* Ofthread   : save stored pixels .png to given path on local drive (bin is default)
+* Terminal   : convert .png sequence to h.264 .mp4 with FFmpeg command and delete image sequence
 
 ## TODOs 
 * Integrate FFmpeg library into code 
