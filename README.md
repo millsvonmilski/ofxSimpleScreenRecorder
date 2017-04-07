@@ -29,10 +29,6 @@ ofxSimpleScreenRecorder depends on FFmpeg library to convert image sequence to v
 * Ofthread   : save stored pixels .png to given path on local drive (bin is default)
 * Terminal   : convert .png sequence to h.264 .mp4 with FFmpeg command and delete image sequence
 
-## TODOs 
-* Integrate FFmpeg library into code 
-  - to convert buffer directly to video without process saving images to local storage and also without process openning terminal
-
 ## Usage Example
 ```c++
 ofxSimpleScreenRecorder mRenderer; 
@@ -56,4 +52,7 @@ void ofApp::keyReleased(int key){
 }
 ```
 
+## TODOs 
+* Integrate FFmpeg library into code 
+  - to convert buffer directly to video without process saving images to local storage and also without process openning terminal
 
