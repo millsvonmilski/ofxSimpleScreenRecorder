@@ -55,4 +55,5 @@ void ofApp::keyReleased(int key){
 ## TODOs 
 * Integrate FFmpeg library into code 
   - to convert buffer directly to video without process saving images to local storage and also without process openning terminal
+* Support different OS (Currently only supports OSX / tested on OSX El Capitan & oF_v0.9.7)
 
