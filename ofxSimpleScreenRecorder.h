@@ -97,8 +97,9 @@ public:
     void stop(){
         if(isRunning)
             stopTriggered = true;
-        else
-            std::cout << "ofxSSR::thread not running" << endl;
+        //modified this part so this doesnt write to console
+       // else
+            //std::cout << "ofxSSR::thread not running" << endl;
     }
     
     void begin(){
