@@ -105,6 +105,7 @@ public:
     void begin(){
         fbo.begin();
         ofClear(0);
+        //ofClearAlpha();
     }
     
     void end(){
@@ -156,7 +157,7 @@ private:
     bool isRunning, isInit, stopTriggered;
     
     void initBuffer(){
-        fbo.allocate(w,h,GL_RGB);
+        fbo.allocate(w,h,GL_RGBA16);//this part works  for viweing  but not saving FBo
         bffr_ping.allocate(w*h*3,GL_DYNAMIC_READ);
         bffr_pong.allocate(w*h*3,GL_DYNAMIC_READ);
     }
