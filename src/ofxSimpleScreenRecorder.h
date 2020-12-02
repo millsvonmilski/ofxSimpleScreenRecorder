@@ -79,6 +79,7 @@ public:
         
        // path = _path == "" ? ofDirectory::ofDirectory(_path).getAbsolutePath() + "/" : _path;
        //changed this line not sure  what it does but it doesnt complile on linx
+       
        path = _path == "" ? ofDirectory(_path).getAbsolutePath() + "/" : _path;
         std::cout << "ofxSSR::target path - " << path << endl;
         
