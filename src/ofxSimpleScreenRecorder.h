@@ -77,7 +77,10 @@ public:
         for(int i = 0; i < numBffr; i++)
             pixels[i] = ofPixels();
         
-        path = _path == "" ? ofDirectory::ofDirectory(_path).getAbsolutePath() + "/" : _path;
+       // path = _path == "" ? ofDirectory::ofDirectory(_path).getAbsolutePath() + "/" : _path;
+       //changed this line not sure  what it does but it doesnt complile on linx
+       
+       path = _path == "" ? ofDirectory(_path).getAbsolutePath() + "/" : _path;
         std::cout << "ofxSSR::target path - " << path << endl;
         
         isRunning = false;
@@ -214,9 +217,12 @@ private:
          * check this thread out
          * https://forum.openframeworks.cc/t/launching-and-configuring-terminal-window-from-of-application/18236/10
          */
-        std::string _cmd = "osascript -e 'tell application \"Terminal\" to do script \"cd " + path + " && ffmpeg -start_number 1 -framerate 30 -i render_%04d.png -c:v libx264 -vf fps=30 -pix_fmt yuv420p -preset ultrafast video"+_tstamp+".mp4 && " + _rmfiles + " && open . && exit\"'";
-        std::system(_cmd.c_str());
+       // std::string _cmd = "osascript -e 'tell application \"Terminal\" to do script \"cd " + path + " && ffmpeg -start_number 1 -framerate 30 -i render_%04d.png -c:v libx264 -vf fps=30 -pix_fmt yuv420p -preset ultrafast video"+_tstamp+".mp4 && " + _rmfiles + " && open . && exit\"'";
+        //std::system(_cmd.c_str());
+        
+        std::string _cmd = "cd " + path + " && ffmpeg -start_number 1 -framerate 30 -i render_%04d.png -c:v libx264 -vf fps=30 -pix_fmt yuv420p video"+_tstamp+".mp4";
         std::cout << "ofxSSR::rendering completed" << endl;
+        std::system(_cmd.c_str());
     }
     
     void threadedFunction(){
